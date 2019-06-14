@@ -1,0 +1,8 @@
+gym==0.10.5
+atari-py==0.1.7
+numpy==1.14.5
+tensorflow==1.10
+seaborn==0.9.0
+matplotlib==3.0.3
+opencv-python
+jupyter

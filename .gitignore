@@ -1,0 +1,4 @@
+# ignoring all dataset folders for sanity
+assignment1/deeplearning/datasets
+assignment2/deeplearning/datasets
+assignment3/dataset
