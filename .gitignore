@@ -1,4 +1,8 @@
 # ignoring all dataset folders for sanity
+*.swp
+*.pyc
+.env/*
 assignment1/deeplearning/datasets
+assignment1/.ipynb_checkpoints
 assignment2/deeplearning/datasets
 assignment3/dataset

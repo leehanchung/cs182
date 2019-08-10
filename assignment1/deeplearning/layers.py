@@ -24,7 +24,7 @@ def affine_forward(x, w, b):
   # TODO: Implement the affine forward pass. Store the result in out. You     #
   # will need to reshape the input into rows.                                 #
   #############################################################################
-  # NxD * DxM -> NxM + M
+  # NxD * DxM + M -> NxM + M
   out = x.reshape(x.shape[0],w.shape[0]).dot(w) + b
   #############################################################################
   #                             END OF YOUR CODE                              #
@@ -113,9 +113,11 @@ def relu_backward(dout, cache):
   # relu is max(0, x), so grad relu is need to set 0s when x <= 0, not when
   # dout <= 0
   #dx = np.maximum(0, dout).reshape(x.shape)
-  print("relu_backward", dout)
-  dout[x <= 0] = 0
-  dx = dout
+  #print("relu_backward", dout, x)
+  dx = np.array(dout, copy=True)
+  #print("relu_backward", dx)
+  dx[x <= 0] = 0
+  #dx = dout
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
