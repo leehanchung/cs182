@@ -186,13 +186,12 @@ class FullyConnectedNet(object):
     # beta2, etc. Scale parameters should be initialized to one and shift      #
     # parameters should be initialized to zero.                                #
     ############################################################################
-    print(self.num_layers)
-    print(len(hidden_dims))
 
     # L-1 layers weight init.  First layer has different shapes due to inputs
+    # since we use range, everything is shifted left by one.
     for layer in range(self.num_layers-1):
-        print('init {}...'.format(layer))
         if layer == 0:
+            # first layer, use input dim and l2 hidden dim.
             self.params.update({'W'+str(layer+1): np.random.randn(input_dim, \
                                                 hidden_dims[0]) * weight_scale})
             self.params.update({'b'+str(layer+1): np.zeros(hidden_dims[0])})
@@ -207,8 +206,6 @@ class FullyConnectedNet(object):
                         np.random.randn(hidden_dims[self.num_layers-2], \
                                         num_classes) * weight_scale})
     self.params.update({'b'+str(self.num_layers): np.zeros(num_classes)})
-
-    print(self.params.keys())
 
     ############################################################################
     #                             END OF YOUR CODE                             #
@@ -275,24 +272,23 @@ class FullyConnectedNet(object):
 
     # first layer
     out_l1, cache_l1 = affine_relu_forward(X, self.params['W1'], self.params['b1'])
-    outs.update({'O1': out_l1})
+    outs.update({'Out_l1': out_l1})
     caches.update({'C1':cache_l1})
 
     # sandwich layers
     for layer in range(2, self.num_layers):
-        #print('HERE')
-        out, cache = affine_relu_forward(outs['O'+str(layer-1)],
+        out, cache = affine_relu_forward(outs['Out_l'+str(layer-1)],
                                          self.params['W'+str(layer)],
                                          self.params['b'+str(layer)])
-        outs.update({'O'+str(layer): out})
+        outs.update({'Out_l'+str(layer): out})
         caches.update({'C'+str(layer): cache})
 
-
     # last layer
-    scores, cache_out = affine_forward(outs['O'+str(self.num_layers-1)],
+    scores, cache_out = affine_forward(outs['Out_l'+str(self.num_layers-1)],
                                        self.params['W'+str(self.num_layers)],
                                        self.params['b'+str(self.num_layers)])
-    outs.update({'O'+str(self.num_layers): scores})
+
+    outs.update({'Out_l'+str(self.num_layers): scores})
     caches.update({'C'+str(self.num_layers): cache_out})
 
     ############################################################################
@@ -317,7 +313,35 @@ class FullyConnectedNet(object):
     # automated tests, make sure that your L2 regularization includes a factor #
     # of 0.5 to simplify the expression for the gradient.                      #
     ############################################################################
-    pass
+
+    # FC scores -> softmax. Calculate loss and gradients
+    loss, sm_grads = softmax_loss(scores, y)
+
+    # add L2 reg to loss
+    w_squared = 0
+    for layer in range(self.num_layers):
+        w_squared += np.sum(self.params['W'+str(layer+1)] * \
+                            self.params['W'+str(layer+1)])
+    reg_loss = 0.5 * self.reg * w_squared
+    loss += reg_loss
+
+    # backprop
+    dxs = {}
+    for layer in range(self.num_layers, 0, -1):
+        if layer == self.num_layers:
+            # last layer, backprop the softmax loss gradient
+            dx, dw, db = affine_backward(sm_grads, caches['C'+str(layer)])
+        else:
+            dx, dw, db = affine_relu_backward(dxs['dx_l'+str(layer+1)],
+                                              caches['C'+str(layer)])
+        # store the gradients and dxs
+        grads['W'+str(layer)] = dw
+        grads['b'+str(layer)] = db
+        dxs['dx_l'+str(layer)] = dx
+
+        # add regularization gradient contribution
+        grads['W'+str(layer)] += self.reg * self.params['W'+str(layer)]
+
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
