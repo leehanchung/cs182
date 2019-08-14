@@ -77,7 +77,7 @@ Once you are done working run the `collectSubmission.sh` script;
 this will produce a file called `assignment1.zip`.
 Upload this file to bCourses as per the assignment instructions. 
 
-### Q1: Fully-connected Neural Network (30 points)
+:heavy_check_mark: Q1: Fully-connected Neural Network (30 points)
 The IPython notebook `FullyConnectedNets.ipynb` will introduce you to our
 modular layer design, and then use those layers to implement fully-connected
 networks of arbitrary depth. To optimize these models you will implement several
