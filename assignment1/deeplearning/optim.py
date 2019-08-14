@@ -59,20 +59,21 @@ def sgd_momentum(w, dw, config=None):
   config.setdefault('learning_rate', 1e-2)
   config.setdefault('momentum', 0.9)
   v = config.get('velocity', np.zeros_like(w))
-  
+
   next_w = None
   #############################################################################
   # TODO: Implement the momentum update formula. Store the updated value in   #
   # the next_w variable. You should also use and update the velocity v.       #
   #############################################################################
-  pass
+  v = config['momentum'] * v - config['learning_rate'] * dw
+
+  next_w = w + v
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
   config['velocity'] = v
 
   return next_w, config
-
 
 
 def rmsprop(x, dx, config=None):
@@ -96,10 +97,21 @@ def rmsprop(x, dx, config=None):
   next_x = None
   #############################################################################
   # TODO: Implement the RMSprop update formula, storing the next value of x   #
-  # in the next_x variable. Don't forget to update cache value stored in      #  
+  # in the next_x variable. Don't forget to update cache value stored in      #
   # config['cache'].                                                          #
   #############################################################################
-  pass
+  s = config['cache']
+  decay_rate = config['decay_rate']
+  lr = config['learning_rate']
+  epsilon = config['epsilon']
+
+  # moving average mean-squared gradient
+  s = decay_rate * s + (1 - decay_rate) * dx ** 2
+
+  # gradient update, scale gradient by inverse of ma of rms
+  next_x = x - lr * dx / (np.sqrt(s) + epsilon)
+
+  config['cache'] = s
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -129,21 +141,39 @@ def adam(x, dx, config=None):
   config.setdefault('m', np.zeros_like(x))
   config.setdefault('v', np.zeros_like(x))
   config.setdefault('t', 0)
-  
+
   next_x = None
   #############################################################################
   # TODO: Implement the Adam update formula, storing the next value of x in   #
   # the next_x variable. Don't forget to update the m, v, and t variables     #
   # stored in config.                                                         #
   #############################################################################
-  pass
+  lr = config['learning_rate']
+  beta1 = config['beta1']
+  beta2 = config['beta2']
+  epsilon = config['epsilon']
+  p = config['m']
+  s = config['v']
+  t = config['t']
+
+  # p is momentum, s is rms gradient. compute moving average updates
+  p = beta1 * p + (1 - beta1) * dx
+  s = beta2 * s + (1 - beta2) * (dx ** 2)
+  t += 1
+
+  # add bias correction to prevent small t centering around 0 problem
+  p_corrected = p / (1 - beta1**t)
+  s_corrected = s / (1 - beta2**t)
+
+  # update weights
+  next_x = x - lr * p_corrected / (np.sqrt(s_corrected) + epsilon)
+
+  # save parameters
+  config['m'] = p
+  config['v'] = s
+  config['t'] = t
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
-  
+
   return next_x, config
-
-  
-  
-  
-
