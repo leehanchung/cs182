@@ -337,8 +337,7 @@ def batchnorm_backward_alt(dout, cache):
   b = var + eps
   m = x.shape[0]
   dx = (1. / m) * gamma * (b**(-1. / 2.)) * \
-       (m * dout - dout.sum(axis=0) - a * b**(-1) * (dout * a.sum(axis=0)))
-
+       (m * dout - dout.sum(axis=0) - a * b**(-1) * (dout * a).sum(axis=0))
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
