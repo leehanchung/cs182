@@ -321,7 +321,7 @@ def batchnorm_backward_alt(dout, cache):
   dgamma = np.sum(dout * x_norm, axis=0)
 
   """
-  # brute force implementation from lecture slide/batchnorm paper.
+  # direct implementation from lecture slide/batchnorm paper.
   # zero simplification.
   dx_norm = dout * gamma
   dvar = np.sum(dx_norm * (x - mean), axis=0) * \
