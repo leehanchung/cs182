@@ -267,6 +267,7 @@ class FullyConnectedNet(object):
     ############################################################################
     caches = {}
     outs = {}
+    dropout_caches = {}
 
     for layer in range(1, self.num_layers):
         input_matrix = X if layer == 1 else outs['Out_l'+str(layer-1)]
@@ -282,6 +283,10 @@ class FullyConnectedNet(object):
             out, cache = affine_relu_forward(input_matrix,
                                                 self.params['W'+str(layer)],
                                                 self.params['b'+str(layer)])
+        if self.use_dropout:
+            out, dropout_cache = dropout_forward(out, self.dropout_param)
+            dropout_caches.update({'dropout'+str(layer): dropout_cache})
+
         outs.update({'Out_l'+str(layer): out})
         caches.update({'C'+str(layer): cache})
 
@@ -334,14 +339,21 @@ class FullyConnectedNet(object):
             # last layer, backprop the softmax loss gradient
             dx, dw, db = affine_backward(sm_grads, caches['C'+str(layer)])
         else:
+            if self.use_dropout:
+                # perform dropout backward  on last layer's dx else passing it
+                dout = dropout_backward(dxs['dx_l'+str(layer+1)],
+                                      dropout_caches['dropout'+str(layer)])
+            else:
+                dout = dxs['dx_l'+str(layer+1)]
+
             if self.use_batchnorm:
                 dx, dw, db, dgamma, dbeta = affine_bn_relu_backward(
-                                                    dxs['dx_l'+str(layer+1)],
+                                                    dout,
                                                     caches['C'+str(layer)])
                 grads['gamma'+str(layer)] = dgamma
                 grads['beta'+str(layer)] = dbeta
             else:
-                dx, dw, db = affine_relu_backward(dxs['dx_l'+str(layer+1)],
+                dx, dw, db = affine_relu_backward(dout,
                                                   caches['C'+str(layer)])
 
         # store the gradients and dxs
@@ -351,7 +363,6 @@ class FullyConnectedNet(object):
 
         # add regularization gradient contribution
         grads['W'+str(layer)] += self.reg * self.params['W'+str(layer)]
-
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
