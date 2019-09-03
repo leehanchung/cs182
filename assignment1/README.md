@@ -77,21 +77,21 @@ Once you are done working run the `collectSubmission.sh` script;
 this will produce a file called `assignment1.zip`.
 Upload this file to bCourses as per the assignment instructions. 
 
-:heavy_check_mark: Q1: Fully-connected Neural Network (30 points)
+### Q1: Fully-connected Neural Network (30 points) :heavy_check_mark: 
 The IPython notebook `FullyConnectedNets.ipynb` will introduce you to our
 modular layer design, and then use those layers to implement fully-connected
 networks of arbitrary depth. To optimize these models you will implement several
 popular update rules.
 
-### Q2: Batch Normalization (30 points)
+### Q2: Batch Normalization (30 points) :heavy_check_mark: 
 In the IPython notebook `BatchNormalization.ipynb` you will implement batch
 normalization, and use it to train deep fully-connected networks.
 
-### Q3: Dropout (10 points)
+### Q3: Dropout (10 points) :heavy_check_mark: 
 The IPython notebook `Dropout.ipynb` will help you implement Dropout and explore
 its effects on model generalization.
 
-### Q4: ConvNet on CIFAR-10 (30 points)
+### Q4: ConvNet on CIFAR-10 (30 points) :heavy_check_mark: 
 In the IPython Notebook `ConvolutionalNetworks.ipynb` you will implement several
 new layers that are commonly used in convolutional networks. You will train a
 (shallow) convolutional network on CIFAR-10, and it will then be up to you to
