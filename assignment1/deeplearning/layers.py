@@ -643,7 +643,13 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
   # version of batch normalization defined above. Your implementation should  #
   # be very short; ours is less than five lines.                              #
   #############################################################################
-  pass
+  N, C, H, W = x.shape
+  # Moving C to the last dimension, and then reshape it into NWH, C so it can
+  # fit into batchnorm's N, D dimension
+  x_transformed = x.transpose(0, 3, 2, 1).reshape(N*H*W, C)
+  out, cache = batchnorm_forward(x_transformed, gamma, beta, bn_param)
+  # Need to reshape the output into N, H, W, C, and then rearrange to N, C, H, W
+  out = out.reshape(N, W, H, C).transpose(0, 3, 2, 1)
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -673,7 +679,13 @@ def spatial_batchnorm_backward(dout, cache):
   # version of batch normalization defined above. Your implementation should  #
   # be very short; ours is less than five lines.                              #
   #############################################################################
-  pass
+  N, C, H, W = dout.shape
+  # Moving C to the last dimension, and then reshape it into NHW, C so it can
+  # fit into batchnorm's N, D dimension
+  dout_reshape = dout.transpose(0, 3, 2, 1).reshape(N*W*H, C)
+  dx, dgamma, dbeta = batchnorm_backward_alt(dout_reshape, cache)
+  # Need to reshape the output into N, H, W, C, and then rearrange to N, C, H, W
+  dx = dx.reshape(N, W, H, C).transpose(0, 3, 2, 1)
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
