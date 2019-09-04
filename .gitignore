@@ -4,5 +4,6 @@
 .env/*
 assignment1/deeplearning/datasets
 assignment1/.ipynb_checkpoints
-assignment2/deeplearning/datasets
+assignment2/deeplearning/datasets/coco_captioning
+assignment2/.ipynb_checkpoints
 assignment3/dataset

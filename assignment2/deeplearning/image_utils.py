@@ -57,6 +57,9 @@ def image_from_url(url):
     """
     Read an image from a URL. Returns a numpy array with the pixel data.
     We write the image to a temporary file then read it back. Kinda gross.
+    
+    2019/9/3: commented out os.remove(fname) otherwise kept on getting 
+              permission errors. gross indeed.
     """
     try:
         f = urllib.request.urlopen(url)
@@ -64,7 +67,8 @@ def image_from_url(url):
         with open(fname, 'wb') as ff:
             ff.write(f.read())
         img = imread(fname)
-        os.remove(fname)
+
+        #os.remove(fname)
         return img
     except urllib.error.URLError as e:
         print('URL Error: ', e.reason, url)

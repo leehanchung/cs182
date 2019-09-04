@@ -1,0 +1,20 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+numpy = "==1.17.1"
+jupyter = "*"
+cython = "*"
+nltk = "*"
+scipy = "==1.1.0"
+matplotlib = "*"
+path-py = "*"
+future = "*"
+h5py = "*"
+
+[requires]
+python_version = "3.7"
