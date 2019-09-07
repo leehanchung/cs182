@@ -137,7 +137,30 @@ class CaptioningRNN(object):
         # defined above to store loss and gradients; grads[k] should give the      #
         # gradients for self.params[k].                                            #
         ############################################################################
-        pass
+        # forward pass
+        # (1)
+        h0, cache_h0 = affine_forward(features, W_proj, b_proj)
+        # (2)
+        embed, cache_embed = word_embedding_forward(captions_in, W_embed)
+
+        # (3)
+        if self.cell_type == 'rnn':
+            h_rnn, cache_rnn = rnn_forward(embed, h0, Wx, Wh, b)
+            # (4)
+            scores, cache_scores = temporal_affine_forward(h_rnn, W_vocab, b_vocab)
+
+        # softmax loss
+        # (5)
+        loss, dout = temporal_softmax_loss(scores, captions_out, mask)
+
+        # backward pass
+        dscores, grads['W_vocab'], grads['b_vocab'] = temporal_affine_backward(dout, cache_scores)
+        if self.cell_type == 'rnn':
+            dx, dh0, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(dscores, cache_rnn)
+
+        grads['W_embed'] = word_embedding_backward(dx, cache_embed)
+        dh0, grads['W_proj'], grads['b_proj'] = affine_backward(dh0, cache_h0)
+
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -199,7 +222,31 @@ class CaptioningRNN(object):
         # functions; you'll need to call rnn_step_forward or lstm_step_forward in #
         # a loop.                                                                 #
         ###########################################################################
-        pass
+
+        h0, _ = affine_forward(features, W_proj, b_proj)
+        # (1) feeding <START> from self._start as the first word
+        embed, _ = word_embedding_forward(self._start, W_embed)
+
+        # Set the number of loops to max_length
+        for i in range(max_length):
+            if self.cell_type == 'rnn':
+                # (2) stepping through RNN one temporal stage at a time
+                h_rnn, _ = rnn_step_forward(embed, h0, Wx, Wh, b)
+
+            # (3) get scores. since we doing one step at a time, use
+            # affine_forward instead of temporal affine forward
+            scores, _ = affine_forward(h_rnn, W_vocab, b_vocab)
+            # (4) select words with highest scores using argmax
+            # print(scores)
+            captions[:, i] = np.argmax(scores, axis=1)
+
+            # break out of the loop if we see <END>
+            if np.all(captions[:, i] == self._end):
+                break
+
+            # (1) embed the previous word for the next
+            embed, _ = word_embedding_forward(captions[:, i], W_embed)
+
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
