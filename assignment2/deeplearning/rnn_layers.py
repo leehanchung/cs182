@@ -244,6 +244,7 @@ def word_embedding_backward(dout, cache):
 
     # numpy magic with np.add.at
     # https://docs.scipy.org/doc/numpy/reference/generated/numpy.ufunc.at.html
+    # https://stackoverflow.com/questions/45473896/np-add-at-indexing-with-array
     #
     np.add.at(dW, x, dout)
     ##############################################################################
