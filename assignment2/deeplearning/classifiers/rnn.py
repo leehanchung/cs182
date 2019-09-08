@@ -145,10 +145,14 @@ class CaptioningRNN(object):
 
         # (3)
         if self.cell_type == 'rnn':
-            h_rnn, cache_rnn = rnn_forward(embed, h0, Wx, Wh, b)
+            h_out, cache_rnn = rnn_forward(embed, h0, Wx, Wh, b)
+        elif self.cell_type == 'lstm':
+            h_out, cache_rnn = lstm_forward(embed, h0, Wx, Wh, b)
+        else:
+            raise Exception(f'Unsupported mode {self.cell_type}')
 
         # (4)
-        scores, cache_scores = temporal_affine_forward(h_rnn, W_vocab, b_vocab)
+        scores, cache_scores = temporal_affine_forward(h_out, W_vocab, b_vocab)
 
         # softmax loss
         # (5)
@@ -160,6 +164,10 @@ class CaptioningRNN(object):
         # (3)
         if self.cell_type == 'rnn':
             dx, dh0, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(dscores, cache_rnn)
+        elif self.cell_type == 'lstm':
+            dx, dh0, grads['Wx'], grads['Wh'], grads['b'] = lstm_backward(dscores, cache_rnn)
+        else:
+            raise Exception(f'Unsupported mode {self.cell_type}')
 
         # (2)
         grads['W_embed'] = word_embedding_backward(dx, cache_embed)
@@ -231,6 +239,7 @@ class CaptioningRNN(object):
         h, _ = affine_forward(features, W_proj, b_proj)
         # (1) feeding <START> from self._start as the first word
         embed, _ = word_embedding_forward(self._start, W_embed)
+        c = np.zeros_like(h)
 
         # Set the number of loops to max_length
         for i in range(max_length):
@@ -238,6 +247,10 @@ class CaptioningRNN(object):
             # hidden state h
             if self.cell_type == 'rnn':
                 h, _ = rnn_step_forward(embed, h, Wx, Wh, b)
+            elif self.cell_type == 'lstm':
+                h, c, _ = lstm_step_forward(embed, h, c, Wx, Wh, b)
+            else:
+                raise Exception(f'Unsupported mode {self.cell_type}')
 
             # (3) get scores. since we doing one step at a time, use
             # affine_forward instead of temporal affine forward

@@ -94,10 +94,10 @@ NOTE 2: If you are working in a virtual environment on OSX, you may potentially 
 Whether you work on the assignment locally or on EC2, once you are done working run the `collectSubmission.sh` script; this will produce a file called `assignment2.zip`. Please submit this file here.
 
 You can do Questions 3 and 4 in TensorFlow or PyTorch. There are two versions of each notebook, with suffixes -TensorFlow or -PyTorch. No extra credit will be awarded if you do a question in both TensorFlow and PyTorch.
-## Q1: Image Captioning with Vanilla RNNs (30 points)
+## Q1: Image Captioning with Vanilla RNNs (30 points) :heavy_check_mark:
 The Jupyter notebook `RNN_Captioning.ipynb` will walk you through the implementation of an image captioning system on MS-COCO using vanilla recurrent networks.
 
-## Q2: Image Captioning with LSTMs (30 points)
+## Q2: Image Captioning with LSTMs (30 points) :heavy_check_mark:
 The Jupyter notebook `LSTM_Captioning.ipynb` will walk you through the implementation of Long-Short Term Memory (LSTM) RNNs, and apply them to image captioning on MS-COCO.
 
 ## Q3: Network Visualization: Saliency maps, Class Visualization, and Fooling Images (20 points)
