@@ -106,6 +106,9 @@ The Jupyter notebooks `NetworkVisualization-TensorFlow.ipynb`/`NetworkVisualizat
 ## Q4: Style Transfer (20 points) :heavy_check_mark:
 In the Jupyter notebooks `StyleTransfer-TensorFlow.ipynb`/`StyleTransfer-PyTorch.ipynb` you will learn how to create images with the content of one image but the style of another. Please complete only one of the notebooks (TensorFlow or PyTorch). No extra credit will be awarded if you complete both notebooks.
 
+## BONUS: General Adversarial Network :heavy_check_mark:
+Grabbed `GANs-PyTorch.ipynb` from cs231n Spring 2019 assignment 3 and implemented different variations of GAN in PyTorch.
+
 Submit your assignment here.
 
 Based on on cs231n Spring 2017 assignment 3. karpathy@cs.stanford.edu

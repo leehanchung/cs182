@@ -5,7 +5,7 @@ Self study on CS182/CS282 - Designing, Visualizing and Understanding Deep Neural
 Done using Python 3.7. Original/course version of the assignment was on Python 2.7.
 
 ## Assignment2: :heavy_check_mark:
-Done using Python 3.7. Network visualization and style transfer done using pytorch 1.2
+Done using Python 3.7. Network visualization and style transfer done using pytorch 1.2. Also implemented GAN notebook from Stanford cs231n assignment 3.
 
 ## Assignment3:
 
