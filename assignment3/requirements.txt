@@ -1,6 +1,0 @@
-tensorflow>=1.12
-sentencepiece
-segtok
-ipykernel
-jupyter
-tqdm
