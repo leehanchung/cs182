@@ -32,18 +32,19 @@ class AttentionQKV(Model):
         # depth_v is the size of the projection of the value projection. In a setting with one head, it is usually the dimension (dim) of the Transformer.
         # heads corresponds to the number of heads the attention is performed on.
         # If you are unfamiliar with attention heads, read section 3.2.2 of the Attentino is all you need paper
-         
+
         # PART 1: Implement Attention QKV
 
         # Use queries, keys and values to compute the output of the QKV attention
 
         # As defined is the Attention is all you need paper: https://arxiv.org/pdf/1706.03762.pdf
         key_dim = tf.cast(tf.shape(keys)[-1], tf.float32)
-        similarity = None # Compute the similarity according to the QKV formula
+        similarity = tf.matmul(queries, keys, transpose_b=True) # Compute the similarity according to the QKV formula
 
-        masked_similarity = self.apply_mask(similarity, mask=mask) # We give you the mask to apply so that it is correct, you do not need to modify this.
-        weights = None # Turn the similarity into a normalized output
-        output = None # Obtain the output
+        # We give you the mask to apply so that it is correct, you do not need to modify this.
+        masked_similarity = self.apply_mask(similarity, mask=mask)
+        weights = tf.nn.softmax(masked_similarity/tf.sqrt(key_dim)) # Turn the similarity into a normalized output
+        output = tf.matmul(weights, values) # Obtain the output
         ####################################  END OF YOUR CODE  ##################################
 
         return output, weights
