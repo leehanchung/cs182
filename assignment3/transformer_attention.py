@@ -39,11 +39,11 @@ class AttentionQKV(Model):
 
         # As defined is the Attention is all you need paper: https://arxiv.org/pdf/1706.03762.pdf
         key_dim = tf.cast(tf.shape(keys)[-1], tf.float32)
-        similarity = tf.matmul(queries, keys, transpose_b=True) # Compute the similarity according to the QKV formula
+        similarity = tf.divide(tf.matmul(queries, keys, transpose_b=True), tf.sqrt(key_dim)) # Compute the similarity according to the QKV formula
 
         # We give you the mask to apply so that it is correct, you do not need to modify this.
         masked_similarity = self.apply_mask(similarity, mask=mask)
-        weights = tf.nn.softmax(masked_similarity/tf.sqrt(key_dim)) # Turn the similarity into a normalized output
+        weights = tf.nn.softmax(masked_similarity) # Turn the similarity into a normalized output
         output = tf.matmul(weights, values) # Obtain the output
         ####################################  END OF YOUR CODE  ##################################
 
@@ -104,11 +104,12 @@ class MultiHeadProjection(Model):
         batch_size, tensorlen = tf.shape(tensor)[0], tf.shape(tensor)[1]
         feature_size = tensor.shape.as_list()[2]
 
-        new_feature_size = None # Compute what the feature size per head is.
+        # Compute what the feature size per head is.
+        new_feature_size = feature_size // self.n_heads
         # Reshape this projection tensor so that it has n_heads, each of new_feature_size
-        tensor = None
+        tensor = tf.reshape(tensor, (batch_size, tensorlen, self.n_heads, new_feature_size))
         # Transpose the matrix so the outer-dimensions are the batch-size and the number of heads
-        tensor = None
+        tensor = tf.transpose(tensor, [0, 2, 1, 3])#[0, 1, 3, 2])
         return tensor
         ##########################################################################################
 
@@ -119,12 +120,14 @@ class MultiHeadProjection(Model):
         # You are given the output from all the heads, and you must combine them back into 1 rank-3 matrix
 
         # Transpose back compared to the split, so that the outer dimensions are batch_size and sequence_length again
-        tensor = None
+        tensor = tf.transpose(tensor, [0, 2, 1, 3])#[0, 1, 3, 2])
         batch_size, tensorlen = tf.shape(tensor)[0], tf.shape(tensor)[1]
         feature_size = tensor.shape.as_list()[-1]
 
-        new_feature_size = None # What is the new feature size, if we combine all the heads
-        tensor = None # Reshape the Tensor to remove the heads dimension and come back to a Rank-3 tensor
+        # What is the new feature size, if we combine all the heads
+        new_feature_size = feature_size * self.n_heads
+        # Reshape the Tensor to remove the heads dimension and come back to a Rank-3 tensor
+        tensor = tf.reshape(tensor, (batch_size, tensorlen, new_feature_size))
         return tensor
         ##########################################################################################
 
