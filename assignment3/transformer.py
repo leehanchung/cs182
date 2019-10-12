@@ -158,15 +158,14 @@ class TransformerDecoderBlock(Model):
         # Get the target self-attention using the self_attention, then apply the residual layer
         target_selfattn = self.self_attention((norm_decoder_inputs, norm_decoder_inputs),
                                                 mask=self_attention_mask)
-
-        res_target_self_attn = target_selfattn + norm_decoder_inputs
+        res_target_self_attn = target_selfattn + decoder_inputs
 
 
         # Step 3
         # Normalize the output of the self-attention, as well as the encoder_outputs
         # using cross_norm_target and cross_norm_source
-        norm_target_selfattn = self.cross_norm_source(res_target_self_attn)
-        norm_encoder_outputs = self.cross_norm_target(encoder_outputs)
+        norm_target_selfattn = self.cross_norm_target(res_target_self_attn)
+        norm_encoder_outputs = self.cross_norm_source(encoder_outputs)
 
         # Step 4
         # Apply the cross attention. Think about what the query and what the memory elements are
@@ -176,7 +175,7 @@ class TransformerDecoderBlock(Model):
 
         # Step 5
         # The cross-attention is followed by another residual connection
-        res_encdec_attention = encdec_attention + norm_target_selfattn
+        res_encdec_attention = encdec_attention + res_target_self_attn
 
         # Step 6
         # Apply the feed-foward layer to the output of the residual of the cross_attention
@@ -415,7 +414,7 @@ class Transformer(Model):
         # Part 1: Encode
         # Using the self.encoder, encode the source_sequence, and provide the encoder_mask variable as the optional mask.
 
-        encoder_output = None
+        encoder_output = self.encoder(source_sequence, encoder_mask)
 
         # Part 2: Decode
         # Finally, we need to do a decoding this should generate a
@@ -427,6 +426,11 @@ class Transformer(Model):
         # As usual, provide it with the encoder and decoder_masks
         # Finally, You should also pass it these two optional arguments:
         # shift_target_sequence_right=shift_target_sequence_right, mask_future=mask_future
-        decoder_output = None
+        # def call(self, target_input, encoder_output, encoder_mask=None, decoder_mask=None, mask_future=False,
+        decoder_output = self.decoder(target_sequence, encoder_output,
+                                    encoder_mask=encoder_mask,
+                                    decoder_mask=decoder_mask,
+                                    shift_target_sequence_right=shift_target_sequence_right,
+                                    mask_future=mask_future)
 
         return decoder_output # We return the decoder's output

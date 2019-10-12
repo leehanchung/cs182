@@ -1,7 +1,9 @@
 import collections
 from typing import Optional, Sequence, Any, Union, Callable
 
-import tensorflow as tf
+#import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 from tensorflow.python.eager import context
 from tensorflow.python.framework import common_shapes
 from tensorflow.python.framework import ops
