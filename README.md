@@ -7,6 +7,7 @@ Done using Python 3.7. Original/course version of the assignment was on Python 2
 ## Assignment2: :heavy_check_mark:
 Done using Python 3.7. Network visualization and style transfer done using pytorch 1.2. Also implemented GAN notebook from Stanford cs231n assignment 3.
 
-## Assignment3:
+## Assignment3: :heavy_check_mark:
+Done using Python 3.7 and tensorflow 2.0 in `tensorflow.compat.v1 mode`. Got 4.54 validation loss with default transformer hyper params vs. possible <= 4.5 indicated in the assignment notebook. Batch size limited by GPU RAM.
 
 ## Assignment4:
