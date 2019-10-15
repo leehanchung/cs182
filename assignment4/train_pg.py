@@ -5,7 +5,8 @@ Adapted for CS294-112 Fall 2018 by Michael Chang and Soroush Nasiriany
 Adapted for CS 182/282A Spring 2019 by Daniel Seita
 """
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 import gym
 import logz
 import os
@@ -99,6 +100,9 @@ class Agent(object):
         # ------------------------------------------------------------------
         # START OF YOUR CODE
         # ------------------------------------------------------------------
+        # from .build_computation_graph's doc string
+        #     _n  - this tensor should have shape (batch self.size /n/)
+        sy_adv_n = tf.placeholder(shape=[None], name='adv', dtype=tf.float32)
         # ------------------------------------------------------------------
         # END OF YOUR CODE
         # ------------------------------------------------------------------
