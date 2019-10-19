@@ -202,9 +202,9 @@ class Agent(object):
             # ------------------------------------------------------------------
             # START OF YOUR CODE
             # ------------------------------------------------------------------
-            # sampling from z using random_normal.  
+            # sampling from z using random_normal.
             # mean is sy_mean, stdev is exp(sy_logstd)
-            sy_sampled_ac = tf.random_normal(shape=tf.shape(sy_mean), 
+            sy_sampled_ac = tf.random_normal(shape=tf.shape(sy_mean),
                                              mean=sy_mean, stdev=tf.exp(sy_logstd))
             # ------------------------------------------------------------------
             # END OF YOUR CODE
@@ -243,7 +243,7 @@ class Agent(object):
             # ------------------------------------------------------------------
             # START OF YOUR CODE
             # ------------------------------------------------------------------
-            sy_logprob_n = tf.nn.sparse_softmax_cross_entropy(labels=sy_ac_na, logits=sy_logits_na)
+            sy_logprob_n = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=sy_ac_na, logits=sy_logits_na)
             # ------------------------------------------------------------------
             # END OF YOUR CODE
             # ------------------------------------------------------------------
@@ -254,7 +254,7 @@ class Agent(object):
             # ------------------------------------------------------------------
             # using multivariatenormaldiag to get multivariate gussian.  then call
             # log_prob over the actions
-            sy_logprob_n = tf.distributions.MultivariateNormalDiag(loc=sy_mean, 
+            sy_logprob_n = tf.distributions.MultivariateNormalDiag(loc=sy_mean,
                                     scaled_diag=tf.exp(sy_logstd)).log_prob(sy_ac_na)
             # ------------------------------------------------------------------
             # END OF YOUR CODE
@@ -302,7 +302,7 @@ class Agent(object):
         # START OF YOUR CODE
         # ------------------------------------------------------------------
         # multiply the log_prob of different policies with their respective advantage (reward)
-        self.loss = tf.reduce_mean(sy_logprob_n, * self.sy_adv_n)
+        self.loss = tf.reduce_mean(self.sy_logprob_n * self.sy_adv_n)
         # ------------------------------------------------------------------
         # END OF YOUR CODE
         # ------------------------------------------------------------------
@@ -340,9 +340,9 @@ class Agent(object):
             # ------------------------------------------------------------------
             # START OF YOUR CODE
             # ------------------------------------------------------------------
-            # In build_computation_graph, it says self.sy_sampled_ac will be called in 
-            # Agent.sample_trajectory() where we generate a rollout. it requires 
-            # policy parameters seelf.sy_ob_no to generate policy params that 
+            # In build_computation_graph, it says self.sy_sampled_ac will be called in
+            # Agent.sample_trajectory() where we generate a rollout. it requires
+            # policy parameters seelf.sy_ob_no to generate policy params that
             # generates sy_sampled_ac.
             ac = self.sess.run(self.sy_sampled_ac, feed_dict={self.sy_ob_no:[ob]})
             # ------------------------------------------------------------------
@@ -435,14 +435,14 @@ class Agent(object):
                 # for debugging sanity
                 #for r in re:
                 for i in range(len(re)):
-                    q += r[i] * gamma
+                    q += re[i] * gamma
                     #q += r * gamma
                     gamma *= self.gamma
                 q_n.extend([q] * len(re))
         else:                     # Case 2
             for re  in re_n:
                 # sum discounted rewards starting from time t.
-                for t in range(length(re)):    
+                for t in range(length(re)):
                     gamma = 1
                     q = 0
                     for i in range(len(re) - t):
@@ -531,8 +531,8 @@ class Agent(object):
         # ------------------------------------------------------------------
         # START OF YOUR CODE
         # ------------------------------------------------------------------
-        self.sess.run(self.update_op, feed_dict={self.sy_ob_no: ob_no, 
-                                                 self.sy_ac_na: ac_na, 
+        self.sess.run(self.update_op, feed_dict={self.sy_ob_no: ob_no,
+                                                 self.sy_ac_na: ac_na,
                                                  self.sy_adv_n: adv_n})
         # ------------------------------------------------------------------
         # END OF YOUR CODE
