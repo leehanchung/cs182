@@ -442,7 +442,7 @@ class Agent(object):
         else:                     # Case 2
             for re  in re_n:
                 # sum discounted rewards starting from time t.
-                for t in range(length(re)):
+                for t in range(len(re)):
                     gamma = 1
                     q = 0
                     for i in range(len(re) - t):
