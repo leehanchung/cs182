@@ -13,6 +13,7 @@ gym = "*"
 atari-py = "*"
 tensorflow-gpu = "*"
 jupyterlab = "*"
+tensorflow-probability = "*"
 
 [requires]
 python_version = "3.7"

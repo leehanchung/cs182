@@ -7,6 +7,8 @@ Adapted for CS 182/282A Spring 2019 by Daniel Seita
 import numpy as np
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
+# import tensorflow_probability.distributions as tfd
+from tensorflow_probability import distributions as tfd
 import gym
 import logz
 import os
@@ -205,7 +207,7 @@ class Agent(object):
             # sampling from z using random_normal.
             # mean is sy_mean, stdev is exp(sy_logstd)
             sy_sampled_ac = tf.random_normal(shape=tf.shape(sy_mean),
-                                             mean=sy_mean, stdev=tf.exp(sy_logstd))
+                                             mean=sy_mean, stddev=tf.exp(sy_logstd))
             # ------------------------------------------------------------------
             # END OF YOUR CODE
             # ------------------------------------------------------------------
@@ -254,8 +256,8 @@ class Agent(object):
             # ------------------------------------------------------------------
             # using multivariatenormaldiag to get multivariate gussian.  then call
             # log_prob over the actions
-            sy_logprob_n = tf.distributions.MultivariateNormalDiag(loc=sy_mean,
-                                    scaled_diag=tf.exp(sy_logstd)).log_prob(sy_ac_na)
+            sy_logprob_n = tfd.MultivariateNormalDiag(loc=sy_mean,
+                                    scale_diag=tf.exp(sy_logstd)).log_prob(sy_ac_na)
             # ------------------------------------------------------------------
             # END OF YOUR CODE
             # ------------------------------------------------------------------
@@ -433,14 +435,12 @@ class Agent(object):
                 gamma = 1
                 # sum discounted rewards as Q. use the same code notation as reward_to_go == True
                 # for debugging sanity
-                #for r in re:
                 for i in range(len(re)):
                     q += re[i] * gamma
-                    #q += r * gamma
                     gamma *= self.gamma
                 q_n.extend([q] * len(re))
         else:                     # Case 2
-            for re  in re_n:
+            for re in re_n:
                 # sum discounted rewards starting from time t.
                 for t in range(len(re)):
                     gamma = 1
@@ -449,7 +449,7 @@ class Agent(object):
                         q += re[i + t] * gamma
                         gamma *= self.gamma
                     q_n.extend([q])
-        # ------------------------------------------------------------------
+        # -----------------------------------------------------------------
         # END OF YOUR CODE
         # ------------------------------------------------------------------
         return q_n
