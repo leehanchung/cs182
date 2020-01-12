@@ -8,7 +8,8 @@ import itertools
 import numpy as np
 import random
 import logz
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 from collections import namedtuple
 from dqn_utils import *
 OptimizerSpec = namedtuple("OptimizerSpec", ["constructor", "kwargs", "lr_schedule"])
@@ -179,6 +180,29 @@ class QLearner(object):
         # START OF YOUR CODE
         # ----------------------------------------------------------------------
 
+        # batches of samples from experience replace buffer D
+        q_vals = q_func(obs_t_float, self.num_actions, scope="q_func")
+        q_func_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="q_func")
+
+        self.action = tf.argmax(q_vals, axis=1)
+
+        target_q_val = q_func(obs_t_float, self.num_actions, scope="target_q_func")
+        target_q_func_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,
+                scope="target_q_func")
+
+        target_action = tf.reduce_max(target_q_val, axis=1)
+
+        self.total_error = tf.reduce_mean(
+                             huber_loss(
+                                # reward t
+                                self.rew_t_ph +
+                                # gamma * max Q target network
+                                gamma * (1 - self.done_mask_ph) * tf.stop_gradient(target_action) -
+                                # Q value of current online network
+                                tf.reduce_sum(q_vals * tf.one_hot(self.act_t_ph, self.num_actions), axis=1)
+                             )
+                           )
+
         # ----------------------------------------------------------------------
         # END OF YOUR CODE
         # ----------------------------------------------------------------------
@@ -208,7 +232,7 @@ class QLearner(object):
         self.mean_episode_reward      = -float('nan')
         self.std_episode_reward       = -float('nan')
         self.best_mean_episode_reward = -float('inf')
-        if cartpole: 
+        if cartpole:
             self.log_every_n_steps = 1000
         else:
             self.log_every_n_steps = 10000
@@ -260,7 +284,30 @@ class QLearner(object):
         # ----------------------------------------------------------------------
         # START OF YOUR CODE
         # ----------------------------------------------------------------------
+        
+        # store the last observation at replay buffer and encode the obs
+        idx = self.replay_buffer.store_frame(self.last_obs)
+        recent_obs = self.replay_buffer.encode_recent_observation()
+        print(idx, recent_obs)
+        recent_obs = np.expand_dims(recent_obs, axis=0)
+        print(idx, recent_obs)
 
+        # sample from action sapce if model not initialized or epsilon greedy exploration
+        if not self.model_initialized or random.random() < self.exploration.value(self.t):
+            action = self.env.action_space.sample()
+        else:
+            action = self.session.run(self.action, feed_dict={self.obs_t_ph: recent_obs})[0]
+        
+        # step once
+        obs, reward, done, info = self.env.step(action)
+        print(obs, reward, done, info)
+
+        if done:
+            obs = self.env.reset()
+
+        # store the step in replay buffer and the observation in last_obs
+        self.replay_buffer.store_effect(idx, action, reward, done)
+        self.last_obs = obs
         # ----------------------------------------------------------------------
         # END OF YOUR CODE
         # ----------------------------------------------------------------------
@@ -272,15 +319,15 @@ class QLearner(object):
         This is only done if the replay buffer contains enough samples for us to
         learn something useful -- until then, the model will not be initialized
         and random actions should be taken.  Training consists of four steps:
-        
+
         3.a: Use the replay buffer to sample a batch of transitions. See the
         replay buffer code for function definitions.
-        
+
         3.b: The boolean variable `model_initialized` indicates whether or not
         the model has been initialized. If the model is not initialized, then
         initialize it via standard TensorFlow initialization (you might find
         `tf.global_variables()` useful). Then, update the target network.
-        
+
         3.c: Train the model. You will need to use `self.train_fn` and
         `self.total_error` ops that were created earlier: `self.total_error` is
         what you created to compute the total Bellman error in a batch, and
@@ -294,7 +341,7 @@ class QLearner(object):
           self.obs_tp1_ph
           self.done_mask_ph
           self.learning_rate  (get from `self.optimizer_spec`)
-        
+
         3.d: Periodically update the target network by calling
 
           self.session.run(self.update_target_fn)
@@ -308,7 +355,27 @@ class QLearner(object):
             # ------------------------------------------------------------------
             # START OF YOUR CODE
             # ------------------------------------------------------------------
+            # 3.a
+            obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = self.replay_buffer.sample(self.batch_size)
 
+            # 3.b
+            if not self.model_initialized:
+                self.session.run(tf.variables_initializer(tf.global_variables()),
+                                 {self.obs_t_ph: obs_batch, self.obs_tp1_ph: next_obs_batch})
+                self.model_initialized = True
+
+            # 3.c
+            feed_dict = {self.obs_t_ph: obs_batch,
+                         self.act_t_ph: act_batch,
+                         self.rew_t_ph: rew_batch,
+                         self.obs_tpl_ph: next_obs_batch,
+                         self.done_mask_ph: done_mask,
+                         self.learning_rate: self.optimizer_spec.lr_schedule(self.t)}
+            self.session.run(self.train_fn, feed_dict=feed_dict)
+
+            # 3.d
+            if self.num_param_updates % self.target_update_freq == 0:
+                self.session.run(self.update_target_fn)
             # ------------------------------------------------------------------
             # END OF YOUR CODE
             # ------------------------------------------------------------------

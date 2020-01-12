@@ -7,7 +7,6 @@ Adapted for CS 182/282A Spring 2019 by Daniel Seita
 import numpy as np
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
-# import tensorflow_probability.distributions as tfd
 from tensorflow_probability import distributions as tfd
 import gym
 import logz

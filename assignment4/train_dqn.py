@@ -2,8 +2,10 @@ import os, random, time, argparse, gym, sys
 import logz
 from gym import wrappers
 import numpy as np
-import tensorflow as tf
-import tensorflow.contrib.layers as layers
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+#import tensorflow.contrib.layers as layers
+import tensorflow.compat.v1.layers as layers
 import dqn
 from dqn_utils import *
 from atari_wrappers import *
@@ -13,18 +15,29 @@ def atari_model(img_in, num_actions, scope, reuse=False):
     with tf.variable_scope(scope, reuse=reuse):
         out = img_in
         with tf.variable_scope("convnet"):
-            out = layers.convolution2d(out, num_outputs=32,
-                    kernel_size=8, stride=4, activation_fn=tf.nn.relu)
-            out = layers.convolution2d(out, num_outputs=64,
-                    kernel_size=4, stride=2, activation_fn=tf.nn.relu)
-            out = layers.convolution2d(out, num_outputs=64,
-                    kernel_size=3, stride=1, activation_fn=tf.nn.relu)
-        out = layers.flatten(out)
+            # out = layers.convolution2d(out, num_outputs=32,
+            #         kernel_size=8, stride=4, activation_fn=tf.nn.relu)
+            # out = layers.convolution2d(out, num_outputs=64,
+            #         kernel_size=4, stride=2, activation_fn=tf.nn.relu)
+            # out = layers.convolution2d(out, num_outputs=64,
+            #         kernel_size=3, stride=1, activation_fn=tf.nn.relu)
+            # out = layers.flatten(out)
+            out = layers.conv2d(out, filters=32,
+                    kernel_size=8, strides=(4,4), activation=tf.nn.relu)
+            out = layers.conv2d(out, filters=64,
+                    kernel_size=4, strides=(2, 2), activation=tf.nn.relu)
+            out = layers.conv2d(out, filters=64,
+                    kernel_size=3, strides=(1, 1), activation=tf.nn.relu)
+            out = layers.flatten(out)
         with tf.variable_scope("action_value"):
-            out = layers.fully_connected(out, num_outputs=512,
-                    activation_fn=tf.nn.relu)
-            out = layers.fully_connected(out, num_outputs=num_actions,
-                    activation_fn=None)
+            # out = layers.fully_connected(out, num_outputs=512,
+            #         activation_fn=tf.nn.relu)
+            # out = layers.fully_connected(out, num_outputs=num_actions,
+            #         activation_fn=None)
+            out = layers.dense(out, units=512,
+                    activation=tf.nn.relu)
+            out = layers.dense(out, units=num_actions,
+                    activation=None)
         return out
 
 
@@ -32,13 +45,20 @@ def cartpole_model(x_input, num_actions, scope, reuse=False):
     """For CartPole we'll use a smaller network.
     """
     with tf.variable_scope(scope, reuse=reuse):
+        # out = x_input
+        # out = layers.fully_connected(out, num_outputs=32,
+        #         activation_fn=tf.nn.tanh)
+        # out = layers.fully_connected(out, num_outputs=32,
+        #         activation_fn=tf.nn.tanh)
+        # out = layers.fully_connected(out, num_outputs=num_actions,
+        #         activation_fn=None)
         out = x_input
-        out = layers.fully_connected(out, num_outputs=32,
-                activation_fn=tf.nn.tanh)
-        out = layers.fully_connected(out, num_outputs=32,
-                activation_fn=tf.nn.tanh)
-        out = layers.fully_connected(out, num_outputs=num_actions,
-                activation_fn=None)
+        out = layers.dense(out, units=32,
+                activation=tf.nn.tanh)
+        out = layers.dense(out, units=32,
+                activation=tf.nn.tanh)
+        out = layers.dense(out, units=num_actions,
+                activation=None)
         return out
 
 
@@ -114,7 +134,8 @@ def learn(env, session, args):
 
 def set_global_seeds(i):
     try:
-        import tensorflow as tf
+        import tensorflow.compat.v1 as tf
+        tf.disable_v2_behavior()
     except ImportError:
         pass
     else:
@@ -129,7 +150,8 @@ def get_session():
         local_device_protos = device_lib.list_local_devices()
         return [x.physical_device_desc for x in local_device_protos \
                 if x.device_type == 'GPU']
-
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
     tf.reset_default_graph()
     tf_config = tf.ConfigProto(inter_op_parallelism_threads=1,
                                intra_op_parallelism_threads=1)
