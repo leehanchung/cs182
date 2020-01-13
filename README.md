@@ -10,5 +10,5 @@ Done using Python 3.7. Network visualization and style transfer done using pytor
 ## Assignment3: :heavy_check_mark:
 Done using Python 3.7 and tensorflow 2.0 in `tensorflow.compat.v1` mode. Got 4.54 validation loss with default transformer hyper params vs. possible <= 4.5 indicated in the assignment notebook. Batch size limited by GPU memory.
 
-## Assignment4: :check_mark:
+## Assignment4: :heavy_check_mark:
 Done using Python 3.7 and Tensorflow 2.0 in `tensorflow.compat.v1` mode. Migraded codes in `train_dqn.py` from `Tensorflow 1.10` to `Tensorflow 1.15`. Pong won't train ```Unknown encoder 'libx264'``` causing ```ERROR: VideoRecorder encoder exited with status 1```
