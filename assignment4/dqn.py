@@ -181,25 +181,30 @@ class QLearner(object):
         # ----------------------------------------------------------------------
 
         # batches of samples from experience replace buffer D
-        q_vals = q_func(obs_t_float, self.num_actions, scope="q_func")
+        q_val = q_func(obs_t_float, self.num_actions, scope="q_func", reuse=False)
         q_func_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="q_func")
+        self.action = tf.argmax(q_val, axis=1)
 
-        self.action = tf.argmax(q_vals, axis=1)
+        target_q_val = q_func(obs_tp1_float, self.num_actions, scope="target_q_func", reuse=False)
+        target_q_func_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="target_q_func")
+        
+        if self.double_q:
+            online_q_val = q_func(obs_tp1_float, self.num_actions, scope="q_func", reuse=True)
+            online_action = tf.argmax(online_q_val, axis=1)
+            self.target_action = tf.reduce_sum(target_q_val * tf.one_hot(online_action, self.num_actions), axis=1)
+        else:
+            self.target_action = tf.reduce_max(target_q_val, axis=1)
 
-        target_q_val = q_func(obs_t_float, self.num_actions, scope="target_q_func")
-        target_q_func_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,
-                scope="target_q_func")
-
-        target_action = tf.reduce_max(target_q_val, axis=1)
+        #print(self.done_mask_ph)
 
         self.total_error = tf.reduce_mean(
                              huber_loss(
                                 # reward t
                                 self.rew_t_ph +
                                 # gamma * max Q target network
-                                gamma * (1 - self.done_mask_ph) * tf.stop_gradient(target_action) -
+                                gamma * (1 - self.done_mask_ph) * tf.stop_gradient(self.target_action) -
                                 # Q value of current online network
-                                tf.reduce_sum(q_vals * tf.one_hot(self.act_t_ph, self.num_actions), axis=1)
+                                tf.reduce_sum(q_val * tf.one_hot(self.act_t_ph, self.num_actions), axis=1)
                              )
                            )
 
@@ -288,9 +293,9 @@ class QLearner(object):
         # store the last observation at replay buffer and encode the obs
         idx = self.replay_buffer.store_frame(self.last_obs)
         recent_obs = self.replay_buffer.encode_recent_observation()
-        print(idx, recent_obs)
+        #print(idx, recent_obs)
         recent_obs = np.expand_dims(recent_obs, axis=0)
-        print(idx, recent_obs)
+        #print(idx, recent_obs)
 
         # sample from action sapce if model not initialized or epsilon greedy exploration
         if not self.model_initialized or random.random() < self.exploration.value(self.t):
@@ -300,7 +305,7 @@ class QLearner(object):
         
         # step once
         obs, reward, done, info = self.env.step(action)
-        print(obs, reward, done, info)
+        #print(obs, reward, done, info)
 
         if done:
             obs = self.env.reset()
@@ -368,12 +373,13 @@ class QLearner(object):
             feed_dict = {self.obs_t_ph: obs_batch,
                          self.act_t_ph: act_batch,
                          self.rew_t_ph: rew_batch,
-                         self.obs_tpl_ph: next_obs_batch,
+                         self.obs_tp1_ph: next_obs_batch,
                          self.done_mask_ph: done_mask,
-                         self.learning_rate: self.optimizer_spec.lr_schedule(self.t)}
+                         self.learning_rate: self.optimizer_spec.lr_schedule.value(self.t)}
             self.session.run(self.train_fn, feed_dict=feed_dict)
 
             # 3.d
+            #print(self.num_param_updates, self.target_update_freq)
             if self.num_param_updates % self.target_update_freq == 0:
                 self.session.run(self.update_target_fn)
             # ------------------------------------------------------------------
