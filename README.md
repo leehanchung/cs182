@@ -25,8 +25,7 @@ Based on assignment 2 and 3  of CS294-112 Deep Reinforcement Learning at UC Berk
 Done using Python 3.7 and Tensorflow 2.0 in `tensorflow.compat.v1` mode. Migraded codes in `train_dqn.py` from `Tensorflow 1.10` to `Tensorflow 1.15`. OpenAI Gym FFMPEG [issue](https://github.com/openai/gym/issues/35) prevented pong from training, causing ```ERROR: VideoRecorder encoder exited with status 1```. 
 
 ```
-dd if=/dev/zero bs=750000 count=50 | ffmpeg -nostats -loglevel error -y -r 60 -f rawvideo -s:│Requirement already satisfied, skipping upgrade: six in /home/han/.virtualenvs/assignment4-RMXgM69L/lib/python3.7/site-packages (from a
-v 500x500 -pix_fmt 'rgb24' -i /dev/stdin -vcodec libx264 -pix_fmt yuv420p /tmp/foo.mp4
+dd if=/dev/zero bs=750000 count=50 | ffmpeg -nostats -loglevel error -y -r 60 -f rawvideo -s:v 500x500 -pix_fmt 'rgb24' -i /dev/stdin -vcodec libx264 -pix_fmt yuv420p /tmp/foo.mp4
 Unknown encoder 'libx264'
 dd: error writing 'standard output': Broken pipe
 2+0 records in
