@@ -110,6 +110,7 @@ class QLearner(object):
         else:
             img_h, img_w, img_c = self.env.observation_space.shape
             input_shape = (img_h, img_w, frame_history_len * img_c)
+            print(f'input shape {input_shape}')
         self.num_actions = self.env.action_space.n
 
         # ----------------------------------------------------------------------
@@ -187,7 +188,7 @@ class QLearner(object):
 
         target_q_val = q_func(obs_tp1_float, self.num_actions, scope="target_q_func", reuse=False)
         target_q_func_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="target_q_func")
-        
+
         if self.double_q:
             online_q_val = q_func(obs_tp1_float, self.num_actions, scope="q_func", reuse=True)
             online_action = tf.argmax(online_q_val, axis=1)
@@ -289,7 +290,7 @@ class QLearner(object):
         # ----------------------------------------------------------------------
         # START OF YOUR CODE
         # ----------------------------------------------------------------------
-        
+
         # store the last observation at replay buffer and encode the obs
         idx = self.replay_buffer.store_frame(self.last_obs)
         recent_obs = self.replay_buffer.encode_recent_observation()
@@ -302,7 +303,7 @@ class QLearner(object):
             action = self.env.action_space.sample()
         else:
             action = self.session.run(self.action, feed_dict={self.obs_t_ph: recent_obs})[0]
-        
+
         # step once
         obs, reward, done, info = self.env.step(action)
         #print(obs, reward, done, info)

@@ -22,7 +22,12 @@ Done using Python 3.7 and tensorflow 2.0 in `tensorflow.compat.v1` mode. Got 4.5
 ## Assignment4: :heavy_check_mark:
 Based on assignment 2 and 3  of CS294-112 Deep Reinforcement Learning at UC Berkeley. Python 3.5 and 3.6 supported,`tensorflow 1.10` code base. 
 
-Done using Python 3.7 and Tensorflow 2.0 in `tensorflow.compat.v1` mode. Migraded codes in `train_dqn.py` from `Tensorflow 1.10` to `Tensorflow 1.15`. OpenAI Gym FFMPEG [issue](https://github.com/openai/gym/issues/35) prevented pong from training, causing ```ERROR: VideoRecorder encoder exited with status 1```. 
+Done using Python 3.7 and Tensorflow 2.0 in `tensorflow.compat.v1` mode. Migraded codes in `train_dqn.py` from `Tensorflow 1.10` to `Tensorflow 1.15`. 
+
+- Implementation of vanilla Policy Gradient, DQN, DDQN.
+
+
+OpenAI Gym FFMPEG [issue](https://github.com/openai/gym/issues/35) prevented pong from training, causing ```ERROR: VideoRecorder encoder exited with status 1```. Issue fixed. Can't train due to memory limitations.
 
 ```
 dd if=/dev/zero bs=750000 count=50 | ffmpeg -nostats -loglevel error -y -r 60 -f rawvideo -s:v 500x500 -pix_fmt 'rgb24' -i /dev/stdin -vcodec libx264 -pix_fmt yuv420p /tmp/foo.mp4
@@ -33,4 +38,8 @@ dd: error writing 'standard output': Broken pipe
 815536 bytes (816 kB, 796 KiB) copied, 0.00551571 s, 148 MB/s 
 ```
 
-- Implementation of Vanilla Policy Gradient, DQN, DDQN.
+After above issue fixed, new error: Not enough memory.
+```
+MemoryError: Unable to allocate array with shape (1000000, 210, 160, 3) and data type uint8
+```
+The array shape from provided code is 210x160x3 but in `atari.py` the frames are downsampled to 84x84x1 using `ProcessFrame84`. My Ubuntu box can only fit at most (250000, 210, 160, 3) int8. Since DQN and DDQN looks fine on Cartpole, will save some trees by not running it until later.

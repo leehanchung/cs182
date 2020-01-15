@@ -1,4 +1,5 @@
 # ignoring all dataset folders for sanity
+.vscode/
 *.swp
 *.pyc
 .env/*

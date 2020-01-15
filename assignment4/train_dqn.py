@@ -22,18 +22,23 @@ def atari_model(img_in, num_actions, scope, reuse=False):
             # out = layers.convolution2d(out, num_outputs=64,
             #         kernel_size=3, stride=1, activation_fn=tf.nn.relu)
             # out = layers.flatten(out)
+            print(tf.shape(out))
             out = layers.conv2d(out, filters=32,
                     kernel_size=8, strides=(4,4), activation=tf.nn.relu)
+            print(tf.shape(out))
             out = layers.conv2d(out, filters=64,
                     kernel_size=4, strides=(2, 2), activation=tf.nn.relu)
+            print(tf.shape(out))
             out = layers.conv2d(out, filters=64,
                     kernel_size=3, strides=(1, 1), activation=tf.nn.relu)
+            print(tf.shape(out))
             out = layers.flatten(out)
         with tf.variable_scope("action_value"):
             # out = layers.fully_connected(out, num_outputs=512,
             #         activation_fn=tf.nn.relu)
             # out = layers.fully_connected(out, num_outputs=num_actions,
             #         activation_fn=None)
+            print(tf.shape(out))
             out = layers.dense(out, units=512,
                     activation=tf.nn.relu)
             out = layers.dense(out, units=num_actions,
@@ -45,6 +50,9 @@ def cartpole_model(x_input, num_actions, scope, reuse=False):
     """For CartPole we'll use a smaller network.
     """
     with tf.variable_scope(scope, reuse=reuse):
+        # --------
+        # Migrated to tf 1.14
+        # --------
         # out = x_input
         # out = layers.fully_connected(out, num_outputs=32,
         #         activation_fn=tf.nn.tanh)
@@ -53,12 +61,9 @@ def cartpole_model(x_input, num_actions, scope, reuse=False):
         # out = layers.fully_connected(out, num_outputs=num_actions,
         #         activation_fn=None)
         out = x_input
-        out = layers.dense(out, units=32,
-                activation=tf.nn.tanh)
-        out = layers.dense(out, units=32,
-                activation=tf.nn.tanh)
-        out = layers.dense(out, units=num_actions,
-                activation=None)
+        out = layers.dense(out, units=32, activation=tf.nn.tanh)
+        out = layers.dense(out, units=32, activation=tf.nn.tanh)
+        out = layers.dense(out, units=num_actions, activation=None)
         return out
 
 
