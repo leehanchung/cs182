@@ -43,3 +43,16 @@ After above issue fixed, new error: Not enough memory.
 MemoryError: Unable to allocate array with shape (1000000, 210, 160, 3) and data type uint8
 ```
 The array shape from provided code is 210x160x3 but in `atari.py` the frames are downsampled to 84x84x1 using `ProcessFrame84`. My Ubuntu box can only fit at most (250000, 210, 160, 3) int8. Since DQN and DDQN looks fine on Cartpole, will save some trees by not running it until later.
+
+## LICENSE
+Homework assignments and code scaffolds are owned by U.C. Berkeley.
+
+You can use my solutions under the open CC BY-SA 3.0 license and cite it as:
+
+@misc{leehanchung,
+  author = {Lee, Hanchung},
+  title = {CS182/282 Solutions},
+  year = {2019},
+  howpublished = {Github Repo},
+  url = {https://github.com/leehanchung/cs182}
+}
