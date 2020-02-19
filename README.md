@@ -27,7 +27,7 @@ Done using Python 3.7 and Tensorflow 2.0 in `tensorflow.compat.v1` mode. Migrade
 - Implementation of vanilla Policy Gradient, DQN, DDQN.
 
 
-OpenAI Gym FFMPEG [issue](https://github.com/openai/gym/issues/35) prevented pong from training, causing ```ERROR: VideoRecorder encoder exited with status 1```. Issue fixed. Can't train due to memory limitations.
+OpenAI Gym FFMPEG [issue](https://github.com/openai/gym/issues/35) prevented pong from training, causing ```ERROR: VideoRecorder encoder exited with status 1```.
 
 ```
 dd if=/dev/zero bs=750000 count=50 | ffmpeg -nostats -loglevel error -y -r 60 -f rawvideo -s:v 500x500 -pix_fmt 'rgb24' -i /dev/stdin -vcodec libx264 -pix_fmt yuv420p /tmp/foo.mp4
@@ -37,18 +37,18 @@ dd: error writing 'standard output': Broken pipe
 1+0 records out
 815536 bytes (816 kB, 796 KiB) copied, 0.00551571 s, 148 MB/s 
 ```
-
 After above issue fixed, new error: Not enough memory.
 ```
 MemoryError: Unable to allocate array with shape (1000000, 210, 160, 3) and data type uint8
 ```
-The array shape from provided code is 210x160x3 but in `atari.py` the frames are downsampled to 84x84x1 using `ProcessFrame84`. My Ubuntu box can only fit at most (250000, 210, 160, 3) int8. Since DQN and DDQN looks fine on Cartpole, will save some trees by not running it until later.
+The array shape from provided code is 210x160x3 but in `atari.py` the frames are downsampled to 84x84x1 using `ProcessFrame84`. My Ubuntu box can only fit at most (250000, 210, 160, 3) int8. Since DQN and DDQN looks fine on Cartpole, will save my energy bill and pospond running the training later.
 
 ## LICENSE
-Homework assignments and code scaffolds are owned by U.C. Berkeley.
+Course Notes, homework assignments, and code scaffolds are owned by U.C. Berkeley.
 
 You can use my solutions under the open CC BY-SA 3.0 license and cite it as:
 
+```
 @misc{leehanchung,
   author = {Lee, Hanchung},
   title = {CS182/282 Solutions},
@@ -56,3 +56,4 @@ You can use my solutions under the open CC BY-SA 3.0 license and cite it as:
   howpublished = {Github Repo},
   url = {https://github.com/leehanchung/cs182}
 }
+```
