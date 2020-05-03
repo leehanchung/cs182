@@ -46,14 +46,4 @@ The array shape from provided code is 210x160x3 but in `atari.py` the frames are
 ## LICENSE
 Course Notes, homework assignments, and code scaffolds are owned by U.C. Berkeley.
 
-You can use my solutions under the open CC BY-SA 3.0 license and cite it as:
-
-```
-@misc{leehanchung,
-  author = {Lee, Hanchung},
-  title = {CS182/282 Solutions},
-  year = {2019},
-  howpublished = {Github Repo},
-  url = {https://github.com/leehanchung/cs182}
-}
-```
+You can use my solutions under MIT License.
